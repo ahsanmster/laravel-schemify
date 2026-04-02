@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1280px;
+    height: 640px;
+    overflow: hidden;
+    background: #0f1117;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px 80px;
+  }
+
+  /* Left side */
+  .left {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 580px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 60, 0, 0.12);
+    border: 1px solid rgba(255, 60, 0, 0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    width: fit-content;
+  }
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    background: #ff3c00;
+    border-radius: 50%;
+  }
+
+  .badge-text {
+    font-size: 14px;
+    color: #ff6b40;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  h1 {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+  }
+
+  h1 .white { color: #ffffff; }
+  h1 .accent { color: #ff3c00; }
+
+  .tagline {
+    font-size: 20px;
+    color: #8b95a1;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .tagline strong {
+    color: #c9d1d9;
+    font-weight: 500;
+  }
+
+  .pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #8b95a1;
+    font-weight: 500;
+  }
+
+  .pill.highlight {
+    background: rgba(255, 60, 0, 0.1);
+    border-color: rgba(255, 60, 0, 0.2);
+    color: #ff6b40;
+  }
+
+  /* Right side — terminal */
+  .terminal {
+    width: 540px;
+    background: #161b22;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  .terminal-bar {
+    background: #1c2128;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red    { background: #ff5f56; }
+  .dot.yellow { background: #ffbd2e; }
+  .dot.green  { background: #27c93f; }
+
+  .terminal-title {
+    color: #484f58;
+    font-size: 13px;
+    margin-left: 8px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .terminal-body {
+    padding: 22px 24px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13.5px;
+    line-height: 1.9;
+  }
+
+  .line { display: flex; align-items: baseline; gap: 10px; }
+  .prompt { color: #3fb950; font-weight: 600; flex-shrink: 0; }
+  .cmd    { color: #e6edf3; }
+  .cmd .pkg  { color: #79c0ff; }
+
+  .out-dim    { color: #484f58; padding-left: 4px; }
+  .out-found  { color: #8b95a1; padding-left: 4px; }
+
+  .out-ok {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding-left: 4px;
+  }
+  .tick   { color: #3fb950; font-weight: 700; }
+  .tick-r { color: #ff3c00; font-weight: 700; }
+  .out-ok span { color: #8b95a1; }
+  .out-ok .filename { color: #79c0ff; }
+
+  .done {
+    margin-top: 4px;
+    padding: 10px 14px;
+    background: rgba(63, 185, 80, 0.08);
+    border-left: 3px solid #3fb950;
+    border-radius: 4px;
+    color: #3fb950;
+    font-size: 13px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+  <div class="left">
+    <div class="badge">
+      <div class="badge-dot"></div>
+      <span class="badge-text">npm install -g laravel-schemify</span>
+    </div>
+
+    <h1>
+      <span class="white">Laravel</span><br>
+      <span class="accent">Schemify</span>
+    </h1>
+
+    <p class="tagline">
+      Reverse-engineer your database into<br>
+      <strong>ready-to-run Laravel migrations</strong> — instantly.
+    </p>
+
+    <div class="pills">
+      <span class="pill highlight">MySQL</span>
+      <span class="pill highlight">PostgreSQL</span>
+      <span class="pill">SSH Tunnel</span>
+      <span class="pill">Interactive CLI</span>
+      <span class="pill">Laravel 9+</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+      <span class="terminal-title">~ laravel-project</span>
+    </div>
+    <div class="terminal-body">
+
+      <div class="line">
+        <span class="prompt">$</span>
+        <span class="cmd">npx <span class="pkg">laravel-schemify</span></span>
+      </div>
+
+      <div class="out-dim">✔ Use database config from .env?  Yes</div>
+      <div class="out-dim">✔ Output directory  ./database/migrations</div>
+      <div class="out-dim">✔ Tables  ALL</div>
+      <div style="height:6px"></div>
+
+      <div class="out-found">
+        <span style="color:#3fb950">✔</span>
+        &nbsp;Connected · Found <span style="color:#e6edf3">12 tables</span>
+      </div>
+
+      <div style="height:6px"></div>
+
+      <div class="out-ok"><span class="tick">✔</span> <span>Generated: <span class="filename">..._create_users_table.php</span></span></div>
+      <div class="out-ok"><span class="tick">✔</span> <span>Generated: <span class="filename">..._create_posts_table.php</span></span></div>
+      <div class="out-ok"><span class="tick">✔</span> <span>Generated: <span class="filename">..._create_orders_table.php</span></span></div>
+      <div class="out-ok"><span style="color:#484f58">···</span> <span style="color:#484f58">9 more files</span></div>
+
+      <div style="height:10px"></div>
+      <div class="done">✔ &nbsp;12 migrations written in 3s</div>
+
+    </div>
+  </div>
+
+</body>
+</html>
