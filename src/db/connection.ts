@@ -1,6 +1,7 @@
 import mysql from 'mysql2/promise';
 import pg    from 'pg';
-import type { DBConfig, SupportedDriver } from '../types/config.js';
+import type { DBConfig, SSHConfig, SupportedDriver } from '../types/config.js';
+import { openSSHTunnel, type TunnelResult } from './tunnel.js';
 import { ConnectionError } from '../utils/errors.js';
 
 export interface DatabaseConnection {
@@ -10,13 +11,26 @@ export interface DatabaseConnection {
   close(): Promise<void>;
 }
 
-export async function createConnection(config: DBConfig): Promise<DatabaseConnection> {
+export async function createConnection(
+  config: DBConfig,
+  ssh?: SSHConfig,
+): Promise<DatabaseConnection> {
+  let tunnel: TunnelResult | undefined;
+  let connectHost = config.host;
+  let connectPort = config.port;
+
+  if (ssh) {
+    tunnel = await openSSHTunnel(ssh, config.host, config.port);
+    connectHost = '127.0.0.1';
+    connectPort = tunnel.localPort;
+  }
+
   if (config.driver === 'mysql') {
     let pool: mysql.Pool;
     try {
       pool = mysql.createPool({
-        host:               config.host,
-        port:               config.port,
+        host:               connectHost,
+        port:               connectPort,
         database:           config.database,
         user:               config.username,
         password:           config.password,
@@ -26,6 +40,7 @@ export async function createConnection(config: DBConfig): Promise<DatabaseConnec
       });
       await pool.query('SELECT 1');
     } catch (err: unknown) {
+      await tunnel?.close();
       const msg = err instanceof Error ? err.message : String(err);
       throw new ConnectionError(`MySQL connection failed: ${msg}`);
     }
@@ -33,15 +48,18 @@ export async function createConnection(config: DBConfig): Promise<DatabaseConnec
     return {
       driver:    'mysql',
       mysqlPool: pool,
-      close:     () => pool.end(),
+      close: async () => {
+        await pool.end();
+        await tunnel?.close();
+      },
     };
   }
 
   let pool: pg.Pool;
   try {
     pool = new pg.Pool({
-      host:     config.host,
-      port:     config.port,
+      host:     connectHost,
+      port:     connectPort,
       database: config.database,
       user:     config.username,
       password: config.password,
@@ -49,6 +67,7 @@ export async function createConnection(config: DBConfig): Promise<DatabaseConnec
     });
     await pool.query('SELECT 1');
   } catch (err: unknown) {
+    await tunnel?.close();
     const msg = err instanceof Error ? err.message : String(err);
     throw new ConnectionError(`PostgreSQL connection failed: ${msg}`);
   }
@@ -56,6 +75,9 @@ export async function createConnection(config: DBConfig): Promise<DatabaseConnec
   return {
     driver: 'pgsql',
     pgPool: pool,
-    close:  () => pool.end(),
+    close: async () => {
+      await pool.end();
+      await tunnel?.close();
+    },
   };
 }

@@ -9,6 +9,16 @@ export interface DBConfig {
   password: string;
 }
 
+export interface SSHConfig {
+  host: string;
+  port: number;
+  username: string;
+  authMethod: 'password' | 'key';
+  password?: string;
+  privateKeyPath?: string;
+  passphrase?: string;
+}
+
 export interface RunOptions {
   output: string;
   tables?: string[];

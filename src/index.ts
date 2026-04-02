@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name('laravel-schemify')
   .description('Reverse-engineer a database into Laravel migration files')
-  .version('1.0.0')
+  .version('1.0.2')
   .action(run);
 
 program.parse(process.argv);
@@ -28,18 +28,21 @@ async function run(): Promise<void> {
 
   try {
     // Step 1: gather DB credentials interactively
-    const dbConfig = await gatherDBConfig();
+    const { dbConfig, sshConfig } = await gatherDBConfig();
 
     // Step 2: gather output options
     const runOpts = await gatherRunOptions();
 
     console.log('');
 
-    // Step 3: connect
-    const spinner = ora('Connecting to database...').start();
+    // Step 3: connect (with optional SSH tunnel)
+    const spinner = ora(sshConfig ? 'Opening SSH tunnel...' : 'Connecting to database...').start();
     try {
-      conn = await createConnection(dbConfig);
-      spinner.succeed(`Connected to ${chalk.green(dbConfig.database)} via ${chalk.green(dbConfig.driver)}`);
+      conn = await createConnection(dbConfig, sshConfig);
+      const via = sshConfig
+        ? `${chalk.green(dbConfig.driver)} via SSH tunnel (${sshConfig.host})`
+        : chalk.green(dbConfig.driver);
+      spinner.succeed(`Connected to ${chalk.green(dbConfig.database)} — ${via}`);
     } catch (err) {
       spinner.fail('Connection failed');
       throw err;
