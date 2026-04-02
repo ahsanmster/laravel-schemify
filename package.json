@@ -1,0 +1,66 @@
+{
+  "name": "laravel-schemify",
+  "version": "1.0.0",
+  "description": "Reverse-engineer a MySQL or PostgreSQL database into Laravel migration files — interactive CLI",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "bin": {
+    "laravel-schemify": "./bin/laravel-schemify.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.3.2",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "dotenv": "^17.4.0",
+    "fs-extra": "^11.3.4",
+    "mysql2": "^3.20.0",
+    "ora": "^9.3.0",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  },
+  "keywords": [
+    "laravel",
+    "mysql",
+    "postgresql",
+    "postgres",
+    "migration",
+    "schema",
+    "cli",
+    "codegen",
+    "database",
+    "reverse-engineer",
+    "artisan",
+    "interactive"
+  ],
+  "author": "ahsanmster",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahsanmster/laravel-schemify.git"
+  },
+  "homepage": "https://github.com/ahsanmster/laravel-schemify#readme",
+  "bugs": {
+    "url": "https://github.com/ahsanmster/laravel-schemify/issues"
+  }
+}
