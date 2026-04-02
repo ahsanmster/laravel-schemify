@@ -2,6 +2,7 @@
 
 > Instantly generate Laravel migration files from your existing MySQL or PostgreSQL database — no config files, just answer a few prompts.
 
+[![CI](https://github.com/ahsanmster/laravel-schemify/actions/workflows/ci.yml/badge.svg)](https://github.com/ahsanmster/laravel-schemify/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/laravel-schemify?color=cb3837&label=npm)](https://www.npmjs.com/package/laravel-schemify)
 [![node](https://img.shields.io/node/v/laravel-schemify?color=339933)](https://www.npmjs.com/package/laravel-schemify)
 [![license](https://img.shields.io/npm/l/laravel-schemify?color=blue)](https://github.com/ahsanmster/laravel-schemify/blob/main/LICENSE)
