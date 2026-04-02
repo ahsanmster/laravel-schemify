@@ -17,6 +17,7 @@ export interface SSHConfig {
   password?: string;
   privateKeyPath?: string;
   passphrase?: string;
+  dbHostOnServer: string;  // how MySQL/PG is reached from inside the server (usually 127.0.0.1)
 }
 
 export interface RunOptions {

@@ -20,7 +20,7 @@ export async function createConnection(
   let connectPort = config.port;
 
   if (ssh) {
-    tunnel = await openSSHTunnel(ssh, config.host, config.port);
+    tunnel = await openSSHTunnel(ssh, config.port);
     connectHost = '127.0.0.1';
     connectPort = tunnel.localPort;
   }

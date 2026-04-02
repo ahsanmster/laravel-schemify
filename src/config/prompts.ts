@@ -112,9 +112,18 @@ async function gatherSSHConfig(dbHost: string): Promise<SSHConfig | undefined> {
   const authMethod = await select<'password' | 'key'>({
     message: 'SSH authentication method',
     choices: [
-      { name: 'Password',        value: 'password' },
+      { name: 'Password',         value: 'password' },
       { name: 'Private key file', value: 'key' },
     ],
+  });
+
+  console.log('');
+  console.log(chalk.dim('  On most servers MySQL/PostgreSQL listens on 127.0.0.1 (localhost) internally.'));
+  console.log(chalk.dim('  Only change this if your database is on a separate internal host.\n'));
+
+  const dbHostOnServer = await input({
+    message: 'Database host as seen from the server',
+    default: '127.0.0.1',
   });
 
   if (authMethod === 'password') {
@@ -123,11 +132,12 @@ async function gatherSSHConfig(dbHost: string): Promise<SSHConfig | undefined> {
       mask: '*',
     });
     return {
-      host:       sshHost,
-      port:       parseInt(sshPortStr, 10),
-      username:   sshUsername,
-      authMethod: 'password',
-      password:   sshPassword ?? '',
+      host:           sshHost,
+      port:           parseInt(sshPortStr, 10),
+      username:       sshUsername,
+      authMethod:     'password',
+      password:       sshPassword ?? '',
+      dbHostOnServer,
     };
   }
 
@@ -148,6 +158,7 @@ async function gatherSSHConfig(dbHost: string): Promise<SSHConfig | undefined> {
     authMethod:     'key',
     privateKeyPath: keyPath,
     passphrase:     passphrase || undefined,
+    dbHostOnServer,
   };
 }
 

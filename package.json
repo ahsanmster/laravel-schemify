@@ -1,6 +1,6 @@
 {
   "name": "laravel-schemify",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Reverse-engineer a MySQL or PostgreSQL database into Laravel migration files — interactive CLI",
   "type": "module",
   "engines": {

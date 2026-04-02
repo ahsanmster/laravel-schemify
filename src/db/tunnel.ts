@@ -30,10 +30,14 @@ async function getFreePort(): Promise<number> {
 
 export async function openSSHTunnel(
   ssh: SSHConfig,
-  dbHost: string,
   dbPort: number,
 ): Promise<TunnelResult> {
   const localPort = await getFreePort();
+
+  // Use dbHostOnServer (how MySQL is reached from inside the server).
+  // On most servers MySQL listens on 127.0.0.1 only, so the tunnel destination
+  // must be 127.0.0.1 — NOT the server's external IP.
+  const tunnelDstHost = ssh.dbHostOnServer ?? '127.0.0.1';
 
   const sshOptions: Record<string, unknown> = {
     host:     ssh.host,
@@ -59,7 +63,7 @@ export async function openSSHTunnel(
       { autoClose: true, reconnectOnError: false },
       { host: '127.0.0.1', port: localPort },
       sshOptions,
-      { srcAddr: '127.0.0.1', srcPort: localPort, dstAddr: dbHost, dstPort: dbPort },
+      { srcAddr: '127.0.0.1', srcPort: localPort, dstAddr: tunnelDstHost, dstPort: dbPort },
     );
 
     return {
