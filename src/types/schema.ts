@@ -38,3 +38,11 @@ export interface TableSchema {
   foreignKeys: ForeignKeyDef[];
   primaryKey: string[];
 }
+
+export type RoutineType = 'PROCEDURE' | 'FUNCTION';
+
+export interface RoutineDef {
+  name: string;
+  type: RoutineType;
+  definition: string;  // full CREATE statement, DEFINER stripped
+}

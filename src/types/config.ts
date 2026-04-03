@@ -23,5 +23,6 @@ export interface SSHConfig {
 export interface RunOptions {
   output: string;
   tables?: string[];
+  includeRoutines: boolean;
   force: boolean;
 }

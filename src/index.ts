@@ -7,7 +7,8 @@ import { gatherDBConfig, gatherRunOptions } from './config/prompts.js';
 import { createConnection } from './db/connection.js';
 import { SchemaInspector }  from './db/inspector.js';
 import { MigrationGenerator } from './generator/MigrationGenerator.js';
-import { generateFilename } from './utils/naming.js';
+import { generateRoutineMigration } from './generator/RoutineGenerator.js';
+import { generateFilename, generateRoutineFilename } from './utils/naming.js';
 import { logger } from './utils/logger.js';
 
 const program = new Command();
@@ -15,7 +16,7 @@ const program = new Command();
 program
   .name('laravel-schemify')
   .description('Reverse-engineer a database into Laravel migration files')
-  .version('1.0.2')
+  .version('1.0.4')
   .action(run);
 
 program.parse(process.argv);
@@ -57,23 +58,44 @@ async function run(): Promise<void> {
       tables = tables.filter(t => runOpts.tables!.includes(t));
     }
 
-    if (tables.length === 0) {
+    if (tables.length === 0 && !runOpts.includeRoutines) {
       spinner.warn('No tables found.');
       return;
     }
 
-    spinner.succeed(`Found ${chalk.green(tables.length)} table(s): ${tables.join(', ')}`);
+    spinner.succeed(`Found ${chalk.green(tables.length)} table(s)`);
 
-    // Step 5: prepare output directory
+    // Step 5: discover routines if requested
+    let routines: Awaited<ReturnType<typeof inspector.getRoutines>> = [];
+    if (runOpts.includeRoutines) {
+      spinner.start('Reading procedures & functions...');
+      routines = await inspector.getRoutines();
+      if (routines.length > 0) {
+        const procedures = routines.filter(r => r.type === 'PROCEDURE').length;
+        const functions  = routines.filter(r => r.type === 'FUNCTION').length;
+        const parts = [];
+        if (procedures > 0) parts.push(`${chalk.green(procedures)} procedure(s)`);
+        if (functions  > 0) parts.push(`${chalk.green(functions)} function(s)`);
+        spinner.succeed(`Found ${parts.join(', ')}`);
+      } else {
+        spinner.info('No stored procedures or functions found');
+      }
+    }
+
+    // Step 6: prepare output directory
     const outputDir = path.resolve(process.cwd(), runOpts.output);
     await fsExtra.ensureDir(outputDir);
 
-    // Step 6: generate migration files
+    // Step 7: generate table migration files
     const generator = new MigrationGenerator(dbConfig.driver);
     let generated = 0;
     let skipped = 0;
 
     console.log('');
+
+    if (tables.length > 0) {
+      logger.info(`Generating table migrations...`);
+    }
 
     for (let i = 0; i < tables.length; i++) {
       const table    = tables[i]!;
@@ -93,10 +115,36 @@ async function run(): Promise<void> {
       generated++;
     }
 
+    // Step 8: generate routine migration files
+    if (routines.length > 0) {
+      console.log('');
+      logger.info(`Generating routine migrations...`);
+
+      // Offset timestamps past the table files so routines run after tables
+      const offset = tables.length + 10;
+
+      for (let i = 0; i < routines.length; i++) {
+        const routine  = routines[i]!;
+        const content  = generateRoutineMigration(routine);
+        const filename = generateRoutineFilename(routine.name, routine.type, offset + i);
+        const filepath = path.join(outputDir, filename);
+
+        if (!runOpts.force && await fsExtra.pathExists(filepath)) {
+          logger.warn(`Skipped (exists): ${filename}`);
+          skipped++;
+          continue;
+        }
+
+        await fsExtra.writeFile(filepath, content, 'utf8');
+        logger.success(`Generated: ${chalk.cyan(filename)}`);
+        generated++;
+      }
+    }
+
     console.log('');
     console.log(chalk.bold.green(`  Done! ${generated} migration(s) written to ${chalk.cyan(outputDir)}`));
     if (skipped > 0) {
-      console.log(chalk.dim(`  ${skipped} file(s) skipped (use --force flag or answer yes to overwrite).`));
+      console.log(chalk.dim(`  ${skipped} file(s) skipped (answer yes to "Overwrite" to replace them).`));
     }
     console.log('');
 

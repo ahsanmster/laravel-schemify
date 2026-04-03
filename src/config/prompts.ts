@@ -174,6 +174,11 @@ export async function gatherRunOptions(): Promise<RunOptions> {
     message: 'Tables to include (comma-separated, leave blank for ALL)',
   });
 
+  const includeRoutines = await confirm({
+    message: 'Include stored procedures & functions?',
+    default: true,
+  });
+
   const force = await confirm({
     message: 'Overwrite existing migration files?',
     default: false,
@@ -183,5 +188,5 @@ export async function gatherRunOptions(): Promise<RunOptions> {
     ? tablesInput.split(',').map(t => t.trim()).filter(Boolean)
     : undefined;
 
-  return { output, tables, force };
+  return { output, tables, includeRoutines, force };
 }
